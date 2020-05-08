@@ -40,8 +40,13 @@ class DecisionTreeClassifier():
 
 	# take in features X and labels y
 	# build a tree
-	def fit(self, X, y):
+	def fit(self, X, y, feature_idx=None):
 		self.num_classes = len(set(y))
+		if feature_idx is None:
+			self.features_idx = np.arange(0, X.shape[1])
+		else:
+			self.features_idx = feature_idx
+
 		self.root = self.build_tree(X, y, depth=1)
 
 	# make prediction for each example of features X
@@ -69,9 +74,6 @@ class DecisionTreeClassifier():
 
 	# function to build a decision tree
 	def build_tree(self, X, y, depth):
-
-		# which features we are considering for splitting on
-		self.features_idx = np.arange(0, X.shape[1])
 
 		# store data and information about best split
 		# used when building subtrees recursively
@@ -137,10 +139,6 @@ class DecisionTreeClassifier():
 		# calculate gini impurity and gain
 		gain = 0
 		if len(left_y) > 0 and len(right_y) > 0:
-
-			########################################
-			#       YOUR CODE GOES HERE            #
-			########################################
 			cp = np.count_nonzero(y == 1)
 			cn = np.count_nonzero(y == 0)
 			clp = np.count_nonzero(left_y == 1)
@@ -180,22 +178,16 @@ class RandomForestClassifier():
 		self.max_features = max_features
 		self.max_depth = max_depth
 
-		##################
-		# YOUR CODE HERE #
-		##################
-
 	# fit all trees
 	def fit(self, X, y):
 		bagged_X, bagged_y = self.bag_data(X, y)
-		print(bagged_X[0][0])
+		bagged_features = self.bag_features(X)
 		print('Fitting Random Forest...\n')
+		self.trees = []
 		for i in range(self.n_trees):
-			print(i+1, end='\t\r')
-
-			##################
-			# YOUR CODE HERE #
-			##################
-		print()
+			newTree = DecisionTreeClassifier(max_depth=self.max_depth)
+			newTree.fit(bagged_X[i], bagged_y[i], feature_idx=bagged_features[i])
+			self.trees.append(newTree)
 
 	def bag_data(self, X, y, proportion=1.0):
 		bagged_X = []
@@ -208,14 +200,21 @@ class RandomForestClassifier():
 		# ensure data is still numpy arrays
 		return np.array(bagged_X), np.array(bagged_y)
 
+	def bag_features(self, X):
+		#bag features
+		features = []
+		for i in range(self.n_trees):
+			features_idx = np.arange(0, X.shape[1])
+			features.append(np.take(np.random.permutation(features_idx), np.arange(0, self.max_features)))
+		return np.array(features)
 
 	def predict(self, X):
-		preds = []
-
-		# remove this one \/
-		preds = np.ones(len(X)).astype(int)
-		# ^that line is only here so the code runs
-
+		preds = np.zeros(X.shape[0])
+		for i in range(self.n_trees):
+			pre_pred = np.asarray(self.trees[i].predict(X))
+			pre_pred = pre_pred * 2 - 1
+			preds = preds + pre_pred
+		preds = ((preds / abs(preds)) + 1) / 2
 		##################
 		# YOUR CODE HERE #
 		##################
