@@ -69,7 +69,7 @@ class DecisionTreeClassifier():
 
 	# function to build a decision tree
 	def build_tree(self, X, y, depth):
-		num_samples, num_features = X.shape
+
 		# which features we are considering for splitting on
 		self.features_idx = np.arange(0, X.shape[1])
 
@@ -141,7 +141,18 @@ class DecisionTreeClassifier():
 			########################################
 			#       YOUR CODE GOES HERE            #
 			########################################
-
+			cp = np.count_nonzero(y == 1)
+			cn = np.count_nonzero(y == 0)
+			clp = np.count_nonzero(left_y == 1)
+			cln = np.count_nonzero(left_y == 0)
+			crp = np.count_nonzero(right_y == 1)
+			crn = np.count_nonzero(right_y == 0)
+			ul = 1 - pow(clp / (clp + cln), 2) - pow(cln / (clp + cln),2)
+			ur = 1 - pow(crp / (crp + crn), 2) - pow(crn / (crp + crn),2)
+			ua = 1 - pow(cp / (cp + cn), 2) - pow(cn / (cp + cn), 2)
+			pl = (clp + cln) / (cp + cn)
+			pr = (crp + crn) / (cp + cn)
+			gain = ua - (pl * ul) - (pr * ur)
 			return gain
 		# we hit leaf node
 		# don't have any gain, and don't want to divide by 0
@@ -176,9 +187,11 @@ class RandomForestClassifier():
 	# fit all trees
 	def fit(self, X, y):
 		bagged_X, bagged_y = self.bag_data(X, y)
+		print(bagged_X[0][0])
 		print('Fitting Random Forest...\n')
 		for i in range(self.n_trees):
 			print(i+1, end='\t\r')
+
 			##################
 			# YOUR CODE HERE #
 			##################
@@ -188,10 +201,9 @@ class RandomForestClassifier():
 		bagged_X = []
 		bagged_y = []
 		for i in range(self.n_trees):
-			continue
-			##################
-			# YOUR CODE HERE #
-			##################
+			rands = np.random.random_integers(0, high=len(X) - 1, size=len(X))
+			bagged_X.append(X[rands])
+			bagged_y.append(y[rands])
 
 		# ensure data is still numpy arrays
 		return np.array(bagged_X), np.array(bagged_y)

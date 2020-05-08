@@ -1,0 +1,67 @@
+Feature: 0 - Description: Population, 2014 estimate
+Feature: 1 - Description: Population, 2010 (April 1) estimates base
+Feature: 2 - Description: Population, percent change - April 1, 2010 to July 1, 2014
+Feature: 3 - Description: Population, 2010
+Feature: 4 - Description: Persons under 5 years, percent, 2014
+Feature: 5 - Description: Persons under 18 years, percent, 2014
+Feature: 6 - Description: Persons 65 years and over, percent, 2014
+Feature: 7 - Description: Female persons, percent, 2014
+Feature: 8 - Description: White alone, percent, 2014
+Feature: 9 - Description: Black or African American alone, percent, 2014
+Feature: 10 - Description: American Indian and Alaska Native alone, percent, 2014
+Feature: 11 - Description: Asian alone, percent, 2014
+Feature: 12 - Description: Native Hawaiian and Other Pacific Islander alone, percent, 2014
+Feature: 13 - Description: Two or More Races, percent, 2014
+Feature: 14 - Description: Hispanic or Latino, percent, 2014
+Feature: 15 - Description: White alone, not Hispanic or Latino, percent, 2014
+Feature: 16 - Description: Living in same house 1 year & over, percent, 2009-2013
+Feature: 17 - Description: Foreign born persons, percent, 2009-2013
+Feature: 18 - Description: Language other than English spoken at home, pct age 5+, 2009-2013
+Feature: 19 - Description: High school graduate or higher, percent of persons age 25+, 2009-2013
+Feature: 20 - Description: Bachelor's degree or higher, percent of persons age 25+, 2009-2013
+Feature: 21 - Description: Veterans, 2009-2013
+Feature: 22 - Description: Mean travel time to work (minutes), workers age 16+, 2009-2013
+Feature: 23 - Description: Housing units, 2014
+Feature: 24 - Description: Homeownership rate, 2009-2013
+Feature: 25 - Description: Housing units in multi-unit structures, percent, 2009-2013
+Feature: 26 - Description: Median value of owner-occupied housing units, 2009-2013
+Feature: 27 - Description: Households, 2009-2013
+Feature: 28 - Description: Persons per household, 2009-2013
+Feature: 29 - Description: Per capita money income in past 12 months (2013 dollars), 2009-2013
+Feature: 30 - Description: Median household income, 2009-2013
+Feature: 31 - Description: Persons below poverty level, percent, 2009-2013
+Feature: 32 - Description: Private nonfarm establishments, 2013
+Feature: 33 - Description: Private nonfarm employment,  2013
+Feature: 34 - Description: Private nonfarm employment, percent change, 2012-2013
+Feature: 35 - Description: Nonemployer establishments, 2013
+Feature: 36 - Description: Total number of firms, 2007
+Feature: 37 - Description: Black-owned firms, percent, 2007
+Feature: 38 - Description: American Indian- and Alaska Native-owned firms, percent, 2007
+Feature: 39 - Description: Asian-owned firms, percent, 2007
+Feature: 40 - Description: Native Hawaiian- and Other Pacific Islander-owned firms, percent, 2007
+Feature: 41 - Description: Hispanic-owned firms, percent, 2007
+Feature: 42 - Description: Women-owned firms, percent, 2007
+Feature: 43 - Description: Manufacturers shipments, 2007 ($1,000)
+Feature: 44 - Description: Merchant wholesaler sales, 2007 ($1,000)
+Feature: 45 - Description: Retail sales, 2007 ($1,000)
+Feature: 46 - Description: Retail sales per capita, 2007
+Feature: 47 - Description: Accommodation and food services sales, 2007 ($1,000)
+Feature: 48 - Description: Building permits, 2014
+Feature: 49 - Description: Land area in square miles, 2010
+Feature: 50 - Description: Population per square mile, 2010
+Decision Tree
+
+
+Train 0.9332697807435653
+Test 0.6742857142857143
+F1 Test 0.7584745762711864
+Random Forest
+
+
+Fitting Random Forest...
+
+1	2	3	4	5	6	7	8	9	10	11	12	13	14	15	16	17	18	19	20	21	22	23	24	25	26	27	28	29	30	31	32	33	34	35	36	37	38	39	40	41	42	43	44	45	46	47	48	49	50	
+Train 0.652049571020019
+Test 0.6628571428571428
+F1 Test 0.7972508591065292
+Done
