@@ -1,6 +1,8 @@
 import numpy as np
+import math
 
-class Node():
+
+class Node:
 	"""
 	Node of decision tree
 
@@ -25,7 +27,7 @@ class Node():
 		self.right_tree = right_tree
 
 
-class DecisionTreeClassifier():
+class DecisionTreeClassifier:
 	"""
 	Decision Tree Classifier. Class for building the decision tree and making predictions
 
@@ -40,14 +42,17 @@ class DecisionTreeClassifier():
 
 	# take in features X and labels y
 	# build a tree
-	def fit(self, X, y, feature_idx=None):
+	def fit(self, X, y, feature_idx=None, weights=None):
 		self.num_classes = len(set(y))
+		self.class_labels = list(set(y))
 		if feature_idx is None:
 			self.features_idx = np.arange(0, X.shape[1])
 		else:
 			self.features_idx = feature_idx
 
-		self.root = self.build_tree(X, y, depth=1)
+		if weights is None:
+			weights = np.ones(X.shape[0])
+		self.root = self.build_tree(X, y, 1, weights)
 
 	# make prediction for each example of features X
 	def predict(self, X):
@@ -73,7 +78,7 @@ class DecisionTreeClassifier():
 		return accuracy
 
 	# function to build a decision tree
-	def build_tree(self, X, y, depth):
+	def build_tree(self, X, y, depth, weights):
 
 		# store data and information about best split
 		# used when building subtrees recursively
@@ -84,6 +89,8 @@ class DecisionTreeClassifier():
 		best_left_y = None
 		best_right_X = None
 		best_right_y = None
+		best_left_weight = None
+		best_right_weight = None
 
 		# what we would predict at this node if we had to
 		# majority class
@@ -99,7 +106,7 @@ class DecisionTreeClassifier():
 				for split in possible_splits:
 					# get the gain and the data on each side of the split
 					# >= split goes on right, < goes on left
-					gain, left_X, right_X, left_y, right_y = self.check_split(X, y, feature, split)
+					gain, left_X, right_X, left_y, right_y, left_weights, right_weights = self.check_split(X, y, feature, split, weights)
 					# if we have a better gain, use this split and keep track of data
 					if gain > best_gain:
 						best_gain = gain
@@ -109,12 +116,14 @@ class DecisionTreeClassifier():
 						best_right_X = right_X
 						best_left_y = left_y
 						best_right_y = right_y
+						best_left_weight = left_weights
+						best_right_weight = right_weights
 		
 		# if we haven't hit a leaf node
 		# add subtrees recursively
 		if best_gain > 0.0:
-			left_tree = self.build_tree(best_left_X, best_left_y, depth=depth+1)
-			right_tree = self.build_tree(best_right_X, best_right_y, depth=depth+1)
+			left_tree = self.build_tree(best_left_X, best_left_y, depth+1, best_left_weight)
+			right_tree = self.build_tree(best_right_X, best_right_y, depth+1, best_right_weight)
 			return Node(prediction=prediction, feature=best_feature, split=best_split, left_tree=left_tree, right_tree=right_tree)
 
 		# if we did hit a leaf node
@@ -122,31 +131,35 @@ class DecisionTreeClassifier():
 
 
 	# gets data corresponding to a split by using numpy indexing
-	def check_split(self, X, y, feature, split):
+	def check_split(self, X, y, feature, split, weights):
 		left_idx = np.where(X[:, feature] < split)
 		right_idx = np.where(X[:, feature] >= split)
+
 		left_X = X[left_idx]
 		right_X = X[right_idx]
 		left_y = y[left_idx]
 		right_y = y[right_idx]
+		left_weights = weights[left_idx]
+		right_weights = weights[right_idx]
 
 		# calculate gini impurity and gain for y, left_y, right_y
-		gain = self.calculate_gini_gain(y, left_y, right_y)
-		return gain, left_X, right_X, left_y, right_y
+		gain = self.calculate_gini_gain(y, left_y, right_y, weights, left_weights, right_weights)
+		return gain, left_X, right_X, left_y, right_y, left_weights, right_weights
 
-	def calculate_gini_gain(self, y, left_y, right_y):
+	def calculate_gini_gain(self, y, left_y, right_y, weights, left_weights, right_weights):
 		# not a leaf node
 		# calculate gini impurity and gain
 		gain = 0
 		if len(left_y) > 0 and len(right_y) > 0:
-			cp = np.count_nonzero(y == 1)
-			cn = np.count_nonzero(y == 0)
-			clp = np.count_nonzero(left_y == 1)
-			cln = np.count_nonzero(left_y == 0)
-			crp = np.count_nonzero(right_y == 1)
-			crn = np.count_nonzero(right_y == 0)
-			ul = 1 - pow(clp / (clp + cln), 2) - pow(cln / (clp + cln),2)
-			ur = 1 - pow(crp / (crp + crn), 2) - pow(crn / (crp + crn),2)
+			x = np.sum((y == self.class_labels[0]) * weights)
+			cp = np.sum((y == self.class_labels[0]) * weights)
+			cn = np.sum((y == self.class_labels[1]) * weights)
+			clp = np.sum((left_y == self.class_labels[0]) * left_weights)
+			cln = np.sum((left_y == self.class_labels[1]) * left_weights)
+			crp = np.sum((right_y == self.class_labels[0]) * right_weights)
+			crn = np.sum((right_y == self.class_labels[1]) * right_weights)
+			ul = 1 - pow(clp / (clp + cln), 2) - pow(cln / (clp + cln), 2)
+			ur = 1 - pow(crp / (crp + crn), 2) - pow(crn / (crp + crn), 2)
 			ua = 1 - pow(cp / (cp + cn), 2) - pow(cn / (cp + cn), 2)
 			pl = (clp + cln) / (cp + cn)
 			pr = (crp + crn) / (cp + cn)
@@ -157,7 +170,8 @@ class DecisionTreeClassifier():
 		else:
 			return 0
 
-class RandomForestClassifier():
+
+class RandomForestClassifier:
 	"""
 	Random Forest Classifier. Build a forest of decision trees.
 	Use this forest for ensemble predictions
@@ -225,10 +239,42 @@ class RandomForestClassifier():
 # YOUR CODE GOES IN ADABOOSTCLASSIFIER         #
 # MUST MODIFY THIS EXISTING DECISION TREE CODE #
 ################################################
-class AdaBoostClassifier():
-	def __init__(self):
-		pass
+class AdaBoostClassifier:
+	def __init__(self, num_trees, max_depth):
+		self.num_trees = num_trees
+		self.max_depth = max_depth
+		self.trees = []
+		self.alphas = []
 
+	def train(self, X, y):
+		# Initialize D1(i) = 1/N for all i from 1 to N
+		weights = []
+		self.trees = []
+		self.alphas = []
+		weights.append(np.ones(X.shape[0]) / X.shape[0])
+
+		for i in range(0, self.num_trees):
+			# create new tree
+			newTree = DecisionTreeClassifier(max_depth=self.max_depth)
+			newTree.fit(X, y)
+			self.trees.append(newTree)
+
+			# Calc error rate
+			error = 1 - newTree.accuracy_score(X, y)
+			alpha = .5 * math.log((1-error)/error, math.e)
+			self.alphas.append(alpha)
+			predict = newTree.predict(X)
+			# Calc new weight factor
+			new_weight = weights[i] * np.exp(alpha * ((predict != y) * 2 - 1))
+			normalize_factor = sum(new_weight)
+			weights.append( new_weight / normalize_factor)
+
+	def predict(self, X):
+		y = np.zeros(X.shape[0])
+		for i in range(0, len(self.trees)):
+			print(self.trees[i].predict(X))
+			y = y + np.asarray(self.trees[i].predict(X)) * self.alphas[i]
+		return np.sign(y)
 
 
 

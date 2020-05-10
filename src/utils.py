@@ -47,6 +47,10 @@ def calc_f1(preds, y):
 def f1(y, yhat):
     return f1_score(y, yhat)
 
+def shiftData(y):
+    y[y==0] = -1
+    return y
+
 ###########################################################################
 # you may add plotting or data processing functions (etc) in here if desired
 ###########################################################################

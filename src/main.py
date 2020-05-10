@@ -6,8 +6,8 @@ sns.set()
 
 import argparse
 
-from utils import load_data, f1, accuracy_score, load_dictionary, print_dictonary, calc_f1
-from tree import DecisionTreeClassifier, RandomForestClassifier
+from utils import load_data, f1, accuracy_score, load_dictionary, print_dictonary, calc_f1, shiftData
+from tree import DecisionTreeClassifier, RandomForestClassifier, AdaBoostClassifier
 
 def load_args():
 
@@ -23,7 +23,7 @@ def load_args():
 
 	parser.add_argument('--forest_test_trees', default=0, type=int)
 	parser.add_argument('--forest_test_max_features', default=0, type=int)
-	parser.add_argument('--forest_random', default=10, type=int)
+	parser.add_argument('--forest_random', default=0, type=int)
 	args = parser.parse_args()
 
 	return args
@@ -47,6 +47,7 @@ def decision_tree_testing(x_train, y_train, x_test, y_test):
 	print('Test {}'.format(test_accuracy))
 	preds = clf.predict(x_test)
 	print('F1 Test {}'.format(f1(y_test, preds)))
+
 
 def decision_tree_testing_depth(x_train, y_train, x_test, y_test, min, max):
 	print('#Decision Tree Depth Testing\n\n')
@@ -85,6 +86,7 @@ def decision_tree_testing_depth(x_train, y_train, x_test, y_test, min, max):
 	plt.legend(['Training F1', 'Testing F1'])
 	plt.show()
 
+
 def random_forest_testing(x_train, y_train, x_test, y_test):
 	print('#Random Forest\n\n')
 	rclf = RandomForestClassifier(max_depth=7, max_features=11, n_trees=51)
@@ -97,6 +99,7 @@ def random_forest_testing(x_train, y_train, x_test, y_test):
 	print('Test {}'.format(test_accuracy))
 	preds = rclf.predict(x_test)
 	print('F1 Test {}'.format(f1(y_test, preds)))
+
 
 def random_forest_testing_max_trees(x_train, y_train, x_test, y_test):
 	print('#Random Forest Number of Trees\n\n')
@@ -113,7 +116,6 @@ def random_forest_testing_max_trees(x_train, y_train, x_test, y_test):
 		num_trees.append(max_trees)
 		accuracy_training.append(accuracy_score(preds_train, y_train))
 		accuracy_testing.append(accuracy_score(preds_test, y_test))
-		preds = rclf.predict(x_test)
 		f1_training.append(calc_f1(preds_train, y_train))
 		f1_testing.append(calc_f1(preds_test, y_test))
 
@@ -135,6 +137,7 @@ def random_forest_testing_max_trees(x_train, y_train, x_test, y_test):
 	plt.legend(['Training F1', 'Testing F1'])
 	plt.show()
 
+
 def random_forest_testing_max_features(x_train, y_train, x_test, y_test):
 	print('#Random Forest Number of Trees\n\n')
 	accuracy_training = []
@@ -150,7 +153,6 @@ def random_forest_testing_max_features(x_train, y_train, x_test, y_test):
 		features.append(max_features)
 		accuracy_training.append(accuracy_score(preds_train, y_train))
 		accuracy_testing.append(accuracy_score(preds_test, y_test))
-		preds = rclf.predict(x_test)
 		f1_training.append(calc_f1(preds_train, y_train))
 		f1_testing.append(calc_f1(preds_test, y_test))
 
@@ -188,7 +190,6 @@ def random_forsest_random_seed(x_train, y_train, x_test, y_test, count):
 		features.append(i)
 		accuracy_training.append(accuracy_score(preds_train, y_train))
 		accuracy_testing.append(accuracy_score(preds_test, y_test))
-		preds = rclf.predict(x_test)
 		f1_training.append(calc_f1(preds_train, y_train))
 		f1_testing.append(calc_f1(preds_test, y_test))
 
@@ -207,6 +208,49 @@ def random_forsest_random_seed(x_train, y_train, x_test, y_test, count):
 	plt.title("F1 vs Seed")
 	plt.ylabel("F1")
 	plt.xlabel("Seed Index")
+	plt.legend(['Training F1', 'Testing F1'])
+	plt.show()
+
+
+def ada_boost(x_train, y_train, x_test, y_test):
+	print('#ADA Boost Testing\n\n')
+	shift_y_train = shiftData(y_train)
+	shift_y_test = shiftData(y_test)
+
+	train_accuracy = []
+	test_accuracy = []
+	train_f1 = []
+	test_f1 = []
+	parameter = []
+
+	for num_trees in range(10, 100, 10):
+		print("Testing with ", num_trees, " trees")
+		ada = AdaBoostClassifier(num_trees, 1)
+		ada.train(x_train, shift_y_train)
+
+		preds_train = ada.predict(x_train)
+		preds_test = ada.predict(x_test)
+		parameter.append(num_trees)
+		train_accuracy.append(accuracy_score(preds_train, shift_y_train))
+		test_accuracy.append(accuracy_score(preds_test, shift_y_test))
+		train_f1.append(calc_f1(preds_train, shift_y_train))
+		test_f1.append(calc_f1(preds_test, shift_y_test))
+
+	f1 = plt.figure(1)
+	plt.plot(parameter, train_accuracy)
+	plt.plot(parameter, test_accuracy)
+	plt.title("ADA Boost Accuracy vs Number of Trees")
+	plt.ylabel("Accuracy")
+	plt.xlabel("Number of Trees")
+	plt.legend(['Training Accuracy', 'Testing Accuracy'])
+	f1.show()
+
+	f2 = plt.figure(2)
+	plt.plot(parameter, train_f1)
+	plt.plot(parameter, test_f1)
+	plt.title("ADA Boost F1 vs Number of Trees")
+	plt.ylabel("F1")
+	plt.xlabel("Number of Trees")
 	plt.legend(['Training F1', 'Testing F1'])
 	plt.show()
 
@@ -230,7 +274,8 @@ if __name__ == '__main__':
 		random_forest_testing_max_features(x_train, y_train, x_test, y_test)
 	if args.forest_random != 0:
 		random_forsest_random_seed(x_train, y_train, x_test, y_test, args.forest_random)
-
+	if args.ada_boost == 1:
+		ada_boost(x_train, y_train, x_test, y_test)
 	print('Done')
 	
 	

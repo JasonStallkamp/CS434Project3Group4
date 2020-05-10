@@ -1,3 +1,5 @@
+pydev debugger: process 3112 is connecting
+
 Feature: 0 - Description: Population, 2014 estimate
 Feature: 1 - Description: Population, 2010 (April 1) estimates base
 Feature: 2 - Description: Population, percent change - April 1, 2010 to July 1, 2014
@@ -49,27 +51,8 @@ Feature: 47 - Description: Accommodation and food services sales, 2007 ($1,000)
 Feature: 48 - Description: Building permits, 2014
 Feature: 49 - Description: Land area in square miles, 2010
 Feature: 50 - Description: Population per square mile, 2010
-#Random Forest Number of Trees
+#ADA Boost Testing
 
 
-Fitting Random Forest...
-
-Fitting Random Forest...
-
-Fitting Random Forest...
-
-Fitting Random Forest...
-
-Fitting Random Forest...
-
-Fitting Random Forest...
-
-Fitting Random Forest...
-
-Fitting Random Forest...
-
-Fitting Random Forest...
-
-Fitting Random Forest...
-
-Done
+Testing with  10  trees
+Backend TkAgg is interactive backend. Turning interactive mode on.
