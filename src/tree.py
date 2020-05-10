@@ -52,7 +52,7 @@ class DecisionTreeClassifier:
 
 		if weights is None:
 			weights = np.ones(X.shape[0])
-		self.root = self.build_tree(X, y, 1, weights)
+		self.root = self.build_tree(X, y, 1, np.asarray(weights))
 
 	# make prediction for each example of features X
 	def predict(self, X):
@@ -94,8 +94,8 @@ class DecisionTreeClassifier:
 
 		# what we would predict at this node if we had to
 		# majority class
-		num_samples_per_class = [np.sum(y == i) for i in range(self.num_classes)]
-		prediction = np.argmax(num_samples_per_class)
+		num_samples_per_class = [np.sum(y == i) for i in self.class_labels]
+		prediction = self.class_labels[np.argmax(num_samples_per_class)]
 
 		# if we haven't hit the maximum depth, keep building
 		if depth <= self.max_depth:
@@ -256,7 +256,7 @@ class AdaBoostClassifier:
 		for i in range(0, self.num_trees):
 			# create new tree
 			newTree = DecisionTreeClassifier(max_depth=self.max_depth)
-			newTree.fit(X, y)
+			newTree.fit(X, y, weights=weights[i])
 			self.trees.append(newTree)
 
 			# Calc error rate
@@ -272,7 +272,6 @@ class AdaBoostClassifier:
 	def predict(self, X):
 		y = np.zeros(X.shape[0])
 		for i in range(0, len(self.trees)):
-			print(self.trees[i].predict(X))
 			y = y + np.asarray(self.trees[i].predict(X)) * self.alphas[i]
 		return np.sign(y)
 
