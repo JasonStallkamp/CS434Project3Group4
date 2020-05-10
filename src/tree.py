@@ -264,6 +264,7 @@ class AdaBoostClassifier:
 			alpha = .5 * math.log((1-error)/error, math.e)
 			self.alphas.append(alpha)
 			predict = newTree.predict(X)
+
 			# Calc new weight factor
 			new_weight = weights[i] * np.exp(alpha * ((predict != y) * 2 - 1))
 			normalize_factor = sum(new_weight)

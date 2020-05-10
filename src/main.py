@@ -223,7 +223,7 @@ def ada_boost(x_train, y_train, x_test, y_test):
 	test_f1 = []
 	parameter = []
 
-	for num_trees in range(10, 100, 10):
+	for num_trees in range(1, 15, 1):
 		print("Testing with ", num_trees, " trees")
 		ada = AdaBoostClassifier(num_trees, 1)
 		ada.train(x_train, shift_y_train)
